@@ -38,8 +38,13 @@ int epollsocket(int argc, char* argv[]) {
 +   events = (struct epoll_event*)calloc(MAXEVENTS, sizeof(event));
 +   while (true) {
 +       int n, i;
+        /* epoll等待IO更新。
+        /* maxevents 为设置该次最大返回的事件数
+        /* timeout 为等待milliseconds(-1 == infinite), 如设置1000时，每1s过去则自动视为过期跳过该次等待进入下一次循环
+        */
 +       n = epoll_wait(efd, events, MAXEVENTS, -1);
 +       for (i = 0; i < n; i++) {
+            // 遇到不需要的类型则直接释放这类句柄
 +           if ((events[i].events & EPOLLERR) ||
 +               (events[i].events & EPOLLHUP) ||
 +               (!(events[i].events & EPOLLIN))
@@ -50,6 +55,7 @@ int epollsocket(int argc, char* argv[]) {
 +           }
 +       }
 +   }
+    // 释放申请的内存
 +   free(events);
 +   close(sfd);
 +   close(efd);
