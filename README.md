@@ -5,7 +5,7 @@
 本实例目标:
 
 + [Part1 - 创建并bind Socket](./tech/part1.md)
-+ Part2 - 设置Socket为非阻塞函数
++ [Part2 - 设置Socket为非阻塞函数](./tech/part2.md)
 + Part3 - Epoll创建和错误判断
 + Part4 - Epoll监听连接请求
 + Part5 - Epoll监听客户端数据

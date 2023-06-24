@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <errno.h>
+#include <fcntl.h>
 
 static int create_and_bindsocket(char* port) {
     int sfd, status;
@@ -43,6 +44,20 @@ static int create_and_bindsocket(char* port) {
     freeaddrinfo(result);
     return sfd;
 }
+static int set_nonblocking(int fd) {
+    int flags;
+    flags = fcntl(fd, F_GETFL, 0);
+    if (flags < 0) {
+        perror("fcntl get error");
+        return -1;
+    }
+    flags |= O_NONBLOCK;
+    if ((fcntl(fd, F_SETFL, flags)) != 0) {
+        perror("fcntl set error");
+        return -1;
+    }
+    return 0;
+}
 
 int epollsocket(int argc, char* argv[]) {
     // 设置端口
@@ -57,6 +72,9 @@ int epollsocket(int argc, char* argv[]) {
     if ((status = listen(sfd, SOMAXCONN)) != 0) {
         perror("server: listen");
         return 1;
+    }
+    if ((status = set_nonblocking(sfd)) != 0) {
+        return status;
     }
     printf("server listen at port: %s\n", port);
     return 0;
