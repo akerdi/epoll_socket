@@ -2,10 +2,9 @@
 
 本实例指导如何简单实现Epoll + Socket 方案。
 
-本实例目标
+本实例目标:
 
-
-+ Part1 - 创建并bind Socket
++ [Part1 - 创建并bind Socket](./tech/part1.md)
 + Part2 - 设置Socket为非阻塞函数
 + Part3 - Epoll创建和错误判断
 + Part4 - Epoll监听连接请求
