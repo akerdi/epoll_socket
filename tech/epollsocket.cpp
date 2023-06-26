@@ -132,6 +132,31 @@ int epollsocket(int argc, char* argv[]) {
                                 return -1;
                         }
                 }
+            }  else {
+                int done = 0;
+                while (true) {
+                        int count;
+                        char buf[512];
+                        errno = 0;
+                        if ((count = read(events[i].data.fd, buf, sizeof(buf))) == -1) {
+                                if (errno != EAGAIN) {
+                                        perror("read");
+                                        done = 1;
+                                }
+                                break;
+                        } else if (0 == count) {
+                                done = 1;
+                                break;
+                        }
+                        if ((status = write(events[i].data.fd, buf, count)) < 0) {
+                                perror("write");
+                                return 1;
+                        }
+                }
+                if (done) {
+                        printf("cfd: %d connection going to close!\n", events[i].data.fd);
+                        close(events[i].data.fd);
+                }
             }
         }
     }
