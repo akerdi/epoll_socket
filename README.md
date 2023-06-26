@@ -30,6 +30,11 @@ services:
 
         docker-compose up -d
 
+## 测试
+
+        apt-get install telnet
+        telnet localhost 9007 # Ctrl + ] 退出对话; quit 推出telnet
+
 ## Ref
 
 [Beej's Guide to Network Programming](https://beej-zhcn.netdpi.net/client-server_basic/jian_dan_de_stream_server)
