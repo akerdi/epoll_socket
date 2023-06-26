@@ -105,6 +105,33 @@ int epollsocket(int argc, char* argv[]) {
                 fprintf(stderr, "close unspecify status for fd: %d\n", events[i].data.fd);
                 close(events[i].data.fd);
                 continue;
+            }  else if (sfd == events[i].data.fd) {
+                while (true) {
+                        struct sockaddr sockaddr;
+                        socklen_t sock_len = sizeof(sockaddr);
+                        int cfd;
+                        char hbuf[NI_MAXHOST], sbuf[NI_MAXSERV];
+                        if ((cfd = accept(events[i].data.fd, &sockaddr, &sock_len)) == -1) {
+                                if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                                        break;
+                                }
+                                perror("server: accept");
+                                return 1;
+                        }
+                        if ((status = set_nonblocking(cfd)) != 0) {
+                                perror("cfd set non blocking");
+                                return 1;
+                        }
+                        if ((status = getnameinfo(&sockaddr, sock_len, hbuf, sizeof(hbuf), sbuf, sizeof(sbuf), NI_NUMERICHOST | NI_NUMERICSERV)) == 0) {
+                                printf("cfd connection success: %d(host: %s, port: %s)\n", cfd, hbuf, sbuf);
+                        }
+                        event.events = EPOLLIN | EPOLLET;
+                        event.data.fd = cfd;
+                        if ((status = epoll_ctl(efd, EPOLL_CTL_ADD, cfd, &event)) != 0) {
+                                perror("cfd epoll add");
+                                return -1;
+                        }
+                }
             }
         }
     }
